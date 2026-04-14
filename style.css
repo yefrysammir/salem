@@ -1251,13 +1251,6 @@ height:60px;
 		#main>div {
 	width:100%;
 }
-   .selector-options {
-    top: -268px;
-    left: 0px;
-  }
-  .options-container {
-    max-height: 162px;
-}
 }
 @media (max-width: 480px) {
 	.iframe-container {
@@ -1326,14 +1319,6 @@ height:60px;
     width: 44px;
     height: 44px;
   }
-  .selector-options {
-    top: 75px;
-    left: 0px;
-
-  }
-  .options-container {
-    max-height: 134px;
-}
 }
 
 /* ═══════════════════════════════════════════════════════════════
