@@ -456,6 +456,32 @@ document.head.appendChild(style);
   }catch(e){console.warn(e);}
 })();
 
+
+/* ─────────────────────────────────────────────
+   Side Panel — helpers compartidos
+   ─────────────────────────────────────────────*/
+let _backdrop = null;
+
+function getPanelBackdrop() {
+  if (!_backdrop) {
+    _backdrop = document.createElement('div');
+    _backdrop.className = 'selector-backdrop';
+    document.body.appendChild(_backdrop);
+    _backdrop.addEventListener('click', closeAllPanels);
+  }
+  return _backdrop;
+}
+
+function closeAllPanels() {
+  document.querySelectorAll('.selector-options.panel-open')
+    .forEach(el => el.classList.remove('panel-open'));
+  document.querySelectorAll('.arrow-toggle')
+    .forEach(el => el.textContent = 'add');
+  if (_backdrop) _backdrop.classList.remove('active');
+}
+
+
+
 /* ---------------- EnVi ---------------- */
 function renderEnVi() {
   const p = PAGES.envi || { title: 'Channels', defaultStream: 'foxsports' };
@@ -586,86 +612,96 @@ function renderEnVi() {
   initCustomSelector();
 }
 
-/* ---------------- Custom Selector ---------------- */
 function initCustomSelector() {
   const custom = document.getElementById('canalSelectorCustom');
   if (!custom) return;
 
-  const display = custom.querySelector('.selector-display');
-  const options = custom.querySelector('.selector-options');
-  const text = custom.querySelector('.selected-text');
-  const loader = document.getElementById('loader');
-  const badge = document.getElementById('liveBadge');
-  const toggleArrow = custom.querySelector('.arrow-toggle');
-  const optionList = [...custom.querySelectorAll('.options-container div')];
-  const scrollUp = custom.querySelector('.scroll-btn.up');
-  const scrollDown = custom.querySelector('.scroll-btn.down');
+  const display        = custom.querySelector('.selector-display');
+  const options        = custom.querySelector('.selector-options');
+  const text           = custom.querySelector('.selected-text');
+  const loader         = document.getElementById('loader');
+  const badge          = document.getElementById('liveBadge');
+  const toggleArrow    = custom.querySelector('.arrow-toggle');
+  const optionList     = [...custom.querySelectorAll('.options-container div')];
+  const scrollUp       = custom.querySelector('.scroll-btn.up');
+  const scrollDown     = custom.querySelector('.scroll-btn.down');
   const optionsContainer = custom.querySelector('.options-container');
+  const backdrop       = getPanelBackdrop();
 
+  // Visibilidad vía transform — no necesitamos .hidden
+  options.classList.remove('hidden');
+
+  // Inyectar header una sola vez
+  if (!options.querySelector('.panel-header')) {
+    const hdr = document.createElement('div');
+    hdr.className = 'panel-header';
+    hdr.innerHTML = `
+      <span class="panel-header-title">Canales</span>
+      <button class="panel-close-btn" title="Cerrar panel">
+        <span class="material-symbols-outlined">close</span>
+      </button>`;
+    options.insertBefore(hdr, options.firstChild);
+    hdr.querySelector('.panel-close-btn')
+       .addEventListener('click', e => { e.stopPropagation(); closeAllPanels(); });
+  }
+
+  const openPanel = () => {
+    closeAllPanels();                       // cierra cualquier otro panel
+    options.classList.add('panel-open');
+    backdrop.classList.add('active');
+    toggleArrow.textContent = 'remove';
+    // Scroll al canal activo
+    const active = optionsContainer.querySelector('.active-option');
+    if (active) setTimeout(() => active.scrollIntoView({ block: 'nearest', behavior: 'smooth' }), 100);
+  };
+
+  const closePanel = () => {
+    options.classList.remove('panel-open');
+    backdrop.classList.remove('active');
+    toggleArrow.textContent = 'add';
+  };
+
+  // Estado inicial
   const canalSaved = localStorage.getItem('canalSeleccionado') || 'foxsports';
-  let currentIndex = optionList.findIndex(opt => opt.dataset.value === canalSaved);
+  let currentIndex = optionList.findIndex(o => o.dataset.value === canalSaved);
   if (currentIndex < 0) currentIndex = 0;
   text.textContent = optionList[currentIndex]?.textContent || 'Canal';
-  optionList[currentIndex].classList.add('active-option');
+  optionList[currentIndex]?.classList.add('active-option');
 
   const updateSelection = (index) => {
     if (index < 0 || index >= optionList.length) return;
-
     optionList.forEach(o => o.classList.remove('active-option'));
     const selected = optionList[index];
-    const value = selected.dataset.value;
     selected.classList.add('active-option');
+    const value = selected.dataset.value;
     text.textContent = selected.textContent;
     localStorage.setItem('canalSeleccionado', value);
-
     if (loader) loader.style.display = 'flex';
-    if (badge) badge.classList.remove('visible');
-
+    if (badge)  badge.classList.remove('visible');
     const iframe = document.getElementById('videoIframe');
-    if (iframe) {
-      iframe.src = `https://la14hd.com/vivo/canales.php?stream=${value}&v=${Date.now()}`;
-    }
-
+    if (iframe) iframe.src = `https://la14hd.com/vivo/canales.php?stream=${value}&v=${Date.now()}`;
     currentIndex = index;
   };
 
-  // Mostrar / ocultar lista
-  display.onclick = () => {
-    options.classList.toggle('hidden');
-    toggleArrow.textContent = options.classList.contains('hidden')
-      ? 'add'
-      : 'remove';
-  };
+  // Evitar listeners duplicados en reload
+  if (!display._panelBound) {
+    display.addEventListener('click', () =>
+      options.classList.contains('panel-open') ? closePanel() : openPanel()
+    );
+    display._panelBound = true;
+  }
 
-  // Cerrar al hacer clic fuera
-  document.addEventListener('click', (e) => {
-    if (!custom.contains(e.target)) {
-      options.classList.add('hidden');
-      toggleArrow.textContent = 'add';
-    }
-  });
-
-  // Seleccionar opción
   optionList.forEach((opt, i) => {
-    opt.onclick = () => {
-      updateSelection(i);
-      options.classList.add('hidden');
-      toggleArrow.textContent = 'add';
-    };
+    opt.onclick = () => { updateSelection(i); closePanel(); };
   });
 
-  // Scroll manual
-  scrollUp.onclick = (e) => {
+  scrollUp.onclick = e => {
     e.stopPropagation();
-    const optionHeight = optionList[0]?.offsetHeight || 40;
-    optionsContainer.scrollTop = Math.max(0, optionsContainer.scrollTop - optionHeight);
+    optionsContainer.scrollTop -= (optionList[0]?.offsetHeight || 44) * 3;
   };
-
-  scrollDown.onclick = (e) => {
+  scrollDown.onclick = e => {
     e.stopPropagation();
-    const optionHeight = optionList[0]?.offsetHeight || 40;
-    const maxScroll = optionsContainer.scrollHeight - optionsContainer.clientHeight;
-    optionsContainer.scrollTop = Math.min(maxScroll, optionsContainer.scrollTop + optionHeight);
+    optionsContainer.scrollTop += (optionList[0]?.offsetHeight || 44) * 3;
   };
 }
 
@@ -787,84 +823,94 @@ function renderEnVi2() {
 }
 
 
-/* ---------------- Custom Selector 2 ---------------- */
 function initCustomSelector2() {
   const custom = document.getElementById('canalSelectorCustom2');
   if (!custom) return;
 
-  const display = custom.querySelector('.selector-display');
-  const options = custom.querySelector('.selector-options');
-  const text = custom.querySelector('.selected-text');
-  const loader = document.getElementById('loader2');
-  const badge = document.getElementById('liveBadge2');
-  const toggleArrow = custom.querySelector('.arrow-toggle');
-  const optionList = [...custom.querySelectorAll('.options-container div')];
-  const scrollUp = custom.querySelector('.scroll-btn.up');
-  const scrollDown = custom.querySelector('.scroll-btn.down');
+  const display        = custom.querySelector('.selector-display');
+  const options        = custom.querySelector('.selector-options');
+  const text           = custom.querySelector('.selected-text');
+  const loader         = document.getElementById('loader2');
+  const badge          = document.getElementById('liveBadge2');
+  const toggleArrow    = custom.querySelector('.arrow-toggle');
+  const optionList     = [...custom.querySelectorAll('.options-container div')];
+  const scrollUp       = custom.querySelector('.scroll-btn.up');
+  const scrollDown     = custom.querySelector('.scroll-btn.down');
   const optionsContainer = custom.querySelector('.options-container');
+  const backdrop       = getPanelBackdrop();
+
+  options.classList.remove('hidden');
+
+  if (!options.querySelector('.panel-header')) {
+    const hdr = document.createElement('div');
+    hdr.className = 'panel-header';
+    hdr.innerHTML = `
+      <span class="panel-header-title">Canales</span>
+      <button class="panel-close-btn" title="Cerrar panel">
+        <span class="material-symbols-outlined">close</span>
+      </button>`;
+    options.insertBefore(hdr, options.firstChild);
+    hdr.querySelector('.panel-close-btn')
+       .addEventListener('click', e => { e.stopPropagation(); closeAllPanels(); });
+  }
+
+  const openPanel = () => {
+    closeAllPanels();
+    options.classList.add('panel-open');
+    backdrop.classList.add('active');
+    toggleArrow.textContent = 'remove';
+    const active = optionsContainer.querySelector('.active-option');
+    if (active) setTimeout(() => active.scrollIntoView({ block: 'nearest', behavior: 'smooth' }), 100);
+  };
+
+  const closePanel = () => {
+    options.classList.remove('panel-open');
+    backdrop.classList.remove('active');
+    toggleArrow.textContent = 'add';
+  };
 
   const canalSaved = localStorage.getItem('canalSeleccionado2') || 'history';
-  let currentIndex = optionList.findIndex(opt => opt.dataset.value === canalSaved);
+  let currentIndex = optionList.findIndex(o => o.dataset.value === canalSaved);
   if (currentIndex < 0) currentIndex = 0;
   text.textContent = optionList[currentIndex]?.textContent || 'Canal';
-  optionList[currentIndex].classList.add('active-option');
+  optionList[currentIndex]?.classList.add('active-option');
 
   const updateSelection = (index) => {
     if (index < 0 || index >= optionList.length) return;
-
     optionList.forEach(o => o.classList.remove('active-option'));
     const selected = optionList[index];
-    const value = selected.dataset.value;
     selected.classList.add('active-option');
+    const value = selected.dataset.value;
     text.textContent = selected.textContent;
     localStorage.setItem('canalSeleccionado2', value);
-
     if (loader) loader.style.display = 'flex';
-    if (badge) badge.classList.remove('visible');
-
+    if (badge)  badge.classList.remove('visible');
     const iframe = document.getElementById('videoIframe2');
-    if (iframe) {
-      iframe.src = `https://embed.saohgdasregions.fun/embed/${value}.html?v=${Date.now()}`;
-    }
-
+    if (iframe) iframe.src = `https://embed.saohgdasregions.fun/embed/${value}.html?v=${Date.now()}`;
     currentIndex = index;
   };
 
-  display.onclick = () => {
-    options.classList.toggle('hidden');
-    toggleArrow.textContent = options.classList.contains('hidden')
-      ? 'add'
-      : 'remove';
-  };
-
-  document.addEventListener('click', (e) => {
-    if (!custom.contains(e.target)) {
-      options.classList.add('hidden');
-      toggleArrow.textContent = 'add';
-    }
-  });
+  if (!display._panelBound) {
+    display.addEventListener('click', () =>
+      options.classList.contains('panel-open') ? closePanel() : openPanel()
+    );
+    display._panelBound = true;
+  }
 
   optionList.forEach((opt, i) => {
-    opt.onclick = () => {
-      updateSelection(i);
-      options.classList.add('hidden');
-      toggleArrow.textContent = 'add';
-    };
+    opt.onclick = () => { updateSelection(i); closePanel(); };
   });
 
-  scrollUp.onclick = (e) => {
+  scrollUp.onclick = e => {
     e.stopPropagation();
-    const optionHeight = optionList[0]?.offsetHeight || 40;
-    optionsContainer.scrollTop = Math.max(0, optionsContainer.scrollTop - optionHeight);
+    optionsContainer.scrollTop -= (optionList[0]?.offsetHeight || 44) * 3;
   };
-
-  scrollDown.onclick = (e) => {
+  scrollDown.onclick = e => {
     e.stopPropagation();
-    const optionHeight = optionList[0]?.offsetHeight || 40;
-    const maxScroll = optionsContainer.scrollHeight - optionsContainer.clientHeight;
-    optionsContainer.scrollTop = Math.min(maxScroll, optionsContainer.scrollTop + optionHeight);
+    optionsContainer.scrollTop += (optionList[0]?.offsetHeight || 44) * 3;
   };
 }
+
 /* ---------------- Tabs, history, swipe ---------------- */
 tabs.forEach(t => t.addEventListener('click', ()=> setActiveTab(t.dataset.tab)));
 
