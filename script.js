@@ -622,13 +622,16 @@ function initCustomSelector() {
   const loader         = document.getElementById('loader');
   const badge          = document.getElementById('liveBadge');
   const toggleArrow    = custom.querySelector('.arrow-toggle');
-  const optionList     = [...custom.querySelectorAll('.options-container div')];
-  const scrollUp       = custom.querySelector('.scroll-btn.up');
-  const scrollDown     = custom.querySelector('.scroll-btn.down');
-  const optionsContainer = custom.querySelector('.options-container');
   const backdrop       = getPanelBackdrop();
 
-  // Visibilidad vía transform — no necesitamos .hidden
+  // 🔴 MOVER EL MENÚ AL BODY para evitar stacking context del contenedor
+  if (options.parentElement !== document.body) {
+    document.body.appendChild(options);
+    // Añadir clase para identificar que es el menú de este selector
+    options.dataset.selectorId = 'canalSelectorCustom';
+  }
+
+  // Resto de la configuración igual que antes...
   options.classList.remove('hidden');
 
   // Inyectar header una sola vez
@@ -645,8 +648,13 @@ function initCustomSelector() {
        .addEventListener('click', e => { e.stopPropagation(); closeAllPanels(); });
   }
 
+  const optionList     = [...options.querySelectorAll('.options-container div')];
+  const scrollUp       = options.querySelector('.scroll-btn.up');
+  const scrollDown     = options.querySelector('.scroll-btn.down');
+  const optionsContainer = options.querySelector('.options-container');
+
   const openPanel = () => {
-    closeAllPanels();                       // cierra cualquier otro panel
+    closeAllPanels();
     options.classList.add('panel-open');
     backdrop.classList.add('active');
     toggleArrow.textContent = 'remove';
@@ -683,7 +691,7 @@ function initCustomSelector() {
     currentIndex = index;
   };
 
-  // Evitar listeners duplicados en reload
+  // Evitar listeners duplicados
   if (!display._panelBound) {
     display.addEventListener('click', () =>
       options.classList.contains('panel-open') ? closePanel() : openPanel()
@@ -695,15 +703,21 @@ function initCustomSelector() {
     opt.onclick = () => { updateSelection(i); closePanel(); };
   });
 
-  scrollUp.onclick = e => {
-    e.stopPropagation();
-    optionsContainer.scrollTop -= (optionList[0]?.offsetHeight || 44) * 3;
-  };
-  scrollDown.onclick = e => {
-    e.stopPropagation();
-    optionsContainer.scrollTop += (optionList[0]?.offsetHeight || 44) * 3;
-  };
+  if (scrollUp) {
+    scrollUp.onclick = e => {
+      e.stopPropagation();
+      optionsContainer.scrollTop -= (optionList[0]?.offsetHeight || 44) * 3;
+    };
+  }
+  
+  if (scrollDown) {
+    scrollDown.onclick = e => {
+      e.stopPropagation();
+      optionsContainer.scrollTop += (optionList[0]?.offsetHeight || 44) * 3;
+    };
+  }
 }
+
 
 /* ---------------- EnVi 2 ---------------- */
 function renderEnVi2() {
@@ -833,11 +847,13 @@ function initCustomSelector2() {
   const loader         = document.getElementById('loader2');
   const badge          = document.getElementById('liveBadge2');
   const toggleArrow    = custom.querySelector('.arrow-toggle');
-  const optionList     = [...custom.querySelectorAll('.options-container div')];
-  const scrollUp       = custom.querySelector('.scroll-btn.up');
-  const scrollDown     = custom.querySelector('.scroll-btn.down');
-  const optionsContainer = custom.querySelector('.options-container');
   const backdrop       = getPanelBackdrop();
+
+  // 🔴 MOVER EL MENÚ AL BODY
+  if (options.parentElement !== document.body) {
+    document.body.appendChild(options);
+    options.dataset.selectorId = 'canalSelectorCustom2';
+  }
 
   options.classList.remove('hidden');
 
@@ -853,6 +869,11 @@ function initCustomSelector2() {
     hdr.querySelector('.panel-close-btn')
        .addEventListener('click', e => { e.stopPropagation(); closeAllPanels(); });
   }
+
+  const optionList     = [...options.querySelectorAll('.options-container div')];
+  const scrollUp       = options.querySelector('.scroll-btn.up');
+  const scrollDown     = options.querySelector('.scroll-btn.down');
+  const optionsContainer = options.querySelector('.options-container');
 
   const openPanel = () => {
     closeAllPanels();
@@ -901,14 +922,19 @@ function initCustomSelector2() {
     opt.onclick = () => { updateSelection(i); closePanel(); };
   });
 
-  scrollUp.onclick = e => {
-    e.stopPropagation();
-    optionsContainer.scrollTop -= (optionList[0]?.offsetHeight || 44) * 3;
-  };
-  scrollDown.onclick = e => {
-    e.stopPropagation();
-    optionsContainer.scrollTop += (optionList[0]?.offsetHeight || 44) * 3;
-  };
+  if (scrollUp) {
+    scrollUp.onclick = e => {
+      e.stopPropagation();
+      optionsContainer.scrollTop -= (optionList[0]?.offsetHeight || 44) * 3;
+    };
+  }
+  
+  if (scrollDown) {
+    scrollDown.onclick = e => {
+      e.stopPropagation();
+      optionsContainer.scrollTop += (optionList[0]?.offsetHeight || 44) * 3;
+    };
+  }
 }
 
 /* ---------------- Tabs, history, swipe ---------------- */
