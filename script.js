@@ -1,3 +1,36 @@
+/* ========== BLOQUEAR SWIPE BACK DEL SISTEMA (iOS/Safari) ========== */
+(function blockSwipeBack() {
+  let startX = 0;
+  const edgeThreshold = 50; // px desde el borde izquierdo
+  
+  // Detectar inicio del toque
+  document.addEventListener('touchstart', (e) => {
+    startX = e.touches[0].clientX;
+  }, { passive: true });
+  
+  // Interceptar movimiento
+  document.addEventListener('touchmove', (e) => {
+    const currentX = e.touches[0].clientX;
+    const diffX = currentX - startX;
+    
+    // Si el toque empezó en el borde izquierdo (0-50px) y se mueve hacia la derecha (diffX > 0)
+    // Es el gesto de "back" del sistema → Lo bloqueamos
+    if (startX < edgeThreshold && diffX > 10) {
+      e.preventDefault();
+    }
+  }, { passive: false }); // passive: false es necesario para preventDefault
+  
+  // Prevenir el comportamiento de "atrás" del navegador en la carga
+  if (window.history && window.history.pushState) {
+    // Crear una entrada dummy para que no salga de la app inmediatamente
+    window.history.pushState(null, null, window.location.href);
+    window.onpopstate = function() {
+      window.history.pushState(null, null, window.location.href);
+    };
+  }
+})();
+
+
 /* === Base con selector personalizado y bloqueo modal scroll === */
 
 const LS_TAB = 'stv_selected_tab';
@@ -976,7 +1009,7 @@ main.addEventListener('touchend', (e)=> {
   setActiveTab(order[idx]);
 }, {passive:true});
 
-/* 🔒 Bloqueos 
+/* --- 🔒 Bloqueos ---*/
 document.addEventListener('contextmenu', event => event.preventDefault());
 document.onkeydown = function(e) {
   if (e.keyCode == 123) return false;
