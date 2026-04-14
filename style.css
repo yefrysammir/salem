@@ -213,21 +213,27 @@ body::before {
 }
 
 /* Active tab */
-.tab.active {
-  color: #fff;
-}
 
 .tab.active::before {
   opacity: 0.15;
 }
 
+.tab.active {
+  background: linear-gradient(135deg, 
+    rgba(0, 245, 255, 0.2) 0%, 
+    rgba(184, 41, 221, 0.2) 50%, 
+    rgba(255, 42, 109, 0.2) 100%
+  );
+  border: 1px solid rgba(0, 245, 255, 0.4);
+  box-shadow: 
+    0 0 20px rgba(0, 245, 255, 0.2),
+    inset 0 0 20px rgba(255, 255, 255, 0.05);
+}
+
 .tab.active span {
-  background: var(--gradient-aurora);
+  background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  background-clip: text;
-  filter: drop-shadow(0 0 15px rgba(0, 245, 255, 0.6));
-  transform: scale(1.15);
 }
 
 .tab.active p {
