@@ -207,7 +207,12 @@ body::before {
 
 /* Active tab */
 .tab.active {
-    background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple), var(--neon-pink));
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  transition: all 0.5s var(--ease-out-expo);
 }
 .tab.active span {
 color: white;
