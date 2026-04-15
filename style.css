@@ -133,7 +133,8 @@ html, body {
 
 /* Asegurar que el área de contenido capture los gestos */
 main {
-  padding-top: calc(constant(safe-area-inset-top, 0px) + 15px);
+padding-top: calc(constant(safe-area-inset-top, 0px) + 15px);
+  padding-top: calc(env(safe-area-inset-top, 0px) + 15px);
   touch-action: pan-y pinch-zoom; /* Permite scroll vertical y zoom, pero captura swipe horizontal */
 }
 
