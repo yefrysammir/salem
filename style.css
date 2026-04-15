@@ -123,6 +123,21 @@ body::before {
   z-index: -1;
 }
 
+@supports (-webkit-touch-callout: none) {
+  /* CSS específico para iOS */
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: env(safe-area-inset-bottom);
+    /*background: var(--void-black);*/
+    z-index: 9999;
+    pointer-events: none;
+  }
+}
+
 /* ═══════════════════════════════════════════════════════════════
    BOTTOM NAVIGATION - FLOATING DOCK
    ═══════════════════════════════════════════════════════════════ */
