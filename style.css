@@ -83,6 +83,8 @@ margin-right: 10px;
   margin: 0;
   padding: 0;
   -webkit-tap-highlight-color: transparent;
+  font-optical-sizing: auto;
+  -webkit-font-smoothing:antialiased;
 }
 
 html {
@@ -102,9 +104,6 @@ body {
   font-family: var(--font-display);
   background: var(--void-black);
   color: #ffffff;
-  -webkit-tap-highlight-color: transparent;
-  font-optical-sizing: auto;
-  -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overscroll-behavior: none;
   touch-action: pan-y;
