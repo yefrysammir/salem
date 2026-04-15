@@ -94,19 +94,23 @@ html, body {
   height: 100%;
   width: 100%;
   overflow: hidden;
+  overscroll-behavior-x: none; /* Bloquea el overscroll horizontal del sistema */
+  touch-action: pan-y; /* Solo permite scroll vertical nativo */
 }
 
 body {
   font-family: var(--font-display);
   background: var(--void-black);
   color: #ffffff;
-  line-height: 1.5;
+  -webkit-tap-highlight-color: transparent;
+  font-optical-sizing: auto;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overscroll-behavior: none;
   touch-action: pan-y;
   user-select: none;
   -webkit-user-select: none;
+  
 }
 
 /* Animated background gradient */
@@ -118,24 +122,6 @@ body::before {
   background-size: cover;
     filter: blur(150px);
   z-index: -1;
-  animation: bgPulse 15s ease-in-out infinite;
-}
-
-@keyframes bgPulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.8; }
-}
-
-html, body {
-  overscroll-behavior-x: none; /* Bloquea el overscroll horizontal del sistema */
-  touch-action: pan-y; /* Solo permite scroll vertical nativo */
-}
-
-/* Asegurar que el área de contenido capture los gestos */
-main {
-padding-top: calc(constant(safe-area-inset-top, 0px) + 15px);
-  padding-top: calc(env(safe-area-inset-top, 0px) + 15px);
-  touch-action: pan-y pinch-zoom; /* Permite scroll vertical y zoom, pero captura swipe horizontal */
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -244,7 +230,7 @@ color: white;
 
 main {
   flex: 1;
-  padding: var(--space-lg);
+  padding: 0;
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
@@ -254,10 +240,13 @@ main {
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
+  touch-action: pan-y pinch-zoom; /* Permite scroll vertical y zoom, pero captura swipe horizontal */
 }
 #main>div {
 	width:800px;
 	margin:0 auto;
+  padding-top: calc(constant(safe-area-inset-top, 0px) + 15px);
+  padding-top: calc(env(safe-area-inset-top, 0px) + 15px);
 }
 
 /* Custom scrollbar */
