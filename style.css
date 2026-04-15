@@ -207,11 +207,11 @@ body::before {
 
 /* Active tab */
 .tab.active {
-  background: var(--glass-bg);
-  backdrop-filter: blur(20px);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow);
+  background: var(--glass-aurora);
+  backdrop-filter: blur(15px);
+  border-radius: var(--radius-full);
+  border: 1px solid  rgba(0, 245, 255, 0.3);
+  transform: translateY(-8px) scale(1.03);
   transition: all 0.5s var(--ease-out-expo);
 }
 .tab.active span {
