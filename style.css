@@ -102,7 +102,7 @@ html, body {
 
 body {
   font-family: var(--font-display);
-  background: var(--void-black);
+  background: red;
   color: #ffffff;
   -moz-osx-font-smoothing: grayscale;
   overscroll-behavior: none;
