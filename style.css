@@ -114,11 +114,9 @@ body::before {
   content: '';
   position: fixed;
   inset: 0;
-  background: 
-    radial-gradient(ellipse at 20% 20%, rgba(184, 41, 221, 0.15) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 80%, rgba(0, 245, 255, 0.1) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 50%, rgba(255, 42, 109, 0.05) 0%, transparent 70%),
-    var(--void-black);
+  background: url(https://cdn.pixabay.com/photo/2017/08/25/18/48/watercolor-2681039_1280.jpg);
+  background-size: cover;
+    filter: blur(150px);
   z-index: -1;
   animation: bgPulse 15s ease-in-out infinite;
 }
@@ -223,13 +221,8 @@ main {
 }
 
 /* Active tab */
-
-.tab.active::before {
-  opacity: 0.15;
-}
-
 .tab.active {
-    background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink));}
+    background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple), var(--neon-pink));
 }
 .tab.active span {
 color: white;
@@ -237,7 +230,7 @@ color: white;
 
 .tab.active p {
   opacity: 1;
-  color: var(--neon-cyan);
+  color: white;
   text-shadow: 0 0 10px rgba(0, 245, 255, 0.5);
 }
 
@@ -250,7 +243,6 @@ color: white;
 main {
   flex: 1;
   padding: var(--space-lg);
-  /*padding-bottom: 120px;*/
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
@@ -276,7 +268,7 @@ main::-webkit-scrollbar-track {
 }
 
 main::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, var(--neon-cyan), var(--neon-purple));
+  background: linear-gradient(180deg, var(--neon-cyan), var(--neon-purple), var(--neon-pink));
   border-radius: var(--radius-full);
 }
 
@@ -860,9 +852,6 @@ height:60px;
   backdrop-filter: blur(40px) saturate(180%);
   -webkit-backdrop-filter: blur(40px) saturate(180%);
   border-right: 1px solid rgba(0, 245, 255, 0.1);
-  box-shadow:
-    16px 0 80px rgba(0, 0, 0, 0.85),
-    inset -1px 0 0 rgba(0, 245, 255, 0.05);
   transform: translateX(-100%);
   transition: transform 0.48s cubic-bezier(0.16, 1, 0.3, 1);
   z-index: 1000;
@@ -914,19 +903,19 @@ height:60px;
 }
 
 .panel-header-title {
-  font-size: 10px;
+  font-size: auto;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 3.5px;
-  background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple));
+  background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple), var(--neon-pink));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .panel-close-btn {
-  width: 34px;
-  height: 34px;
+  width: 35px;
+  height: 35px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -947,7 +936,7 @@ height:60px;
 }
 
 .panel-close-btn .material-symbols-outlined {
-  font-size: 18px;
+  font-size: 19px;
 }
 
 /* ── Options container — ocupa el alto restante ── */
@@ -962,16 +951,58 @@ height:60px;
 .selector-options .options-container::-webkit-scrollbar { width: 3px; }
 .selector-options .options-container::-webkit-scrollbar-track { background: transparent; }
 .selector-options .options-container::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, var(--neon-cyan), var(--neon-purple));
+  background: linear-gradient(180deg, var(--neon-cyan), var(--neon-purple), var(--neon-pink));
   border-radius: 99px;
 }
 
 /* ── Scroll buttons en panel ── */
-.selector-options .scroll-btn {
+.scroll-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
   flex-shrink: 0;
   height: 36px;
+  padding: 10px;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  transition: all 0.3s;
 }
 
+.scroll-btn:hover {
+  color: var(--neon-cyan);
+  background: rgba(0, 245, 255, 0.1);
+}
+.options-container div {
+  padding: 16px 20px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  transition: all 0.3s var(--ease-out-expo);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.options-container div:hover {
+  background: rgba(0, 245, 255, 0.1);
+  color: #fff;
+  padding-left: 28px;
+}
+
+.options-container div:hover::before {
+  background: var(--neon-cyan);
+  box-shadow: var(--glow-cyan);
+}
+
+.options-container div.active-option {
+  background: linear-gradient(90deg, rgba(0, 245, 255, 0.15), transparent);
+  color: var(--neon-cyan);
+  font-weight: 600;
+}
 /* ═══════════════════════════════════════════════════════════════
    LIVE BADGE - PULSING NEON
    ═══════════════════════════════════════════════════════════════ */
