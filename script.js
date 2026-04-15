@@ -1,35 +1,26 @@
-/* ========== BLOQUEAR SWIPE BACK DEL SISTEMA (iOS/Safari) ========== */
-(function blockSwipeBack() {
-  let startX = 0;
-  const edgeThreshold = 50; // px desde el borde izquierdo
+/* ========== BLOQUEAR NAVEGACIÓN ATRÁS COMPLETAMENTE ========== */
+(function preventBackNavigation() {
+  // Empujar estado inicial
+  history.pushState(null, document.title, location.href);
   
-  // Detectar inicio del toque
+  // Cada vez que intenten ir atrás (incluyendo gestos), volver a empujar
+  window.addEventListener('popstate', function(e) {
+    history.pushState(null, document.title, location.href);
+  });
+  
+  // Bloquear gesto swipe back en iOS específicamente en el borde
+  let startX = 0;
   document.addEventListener('touchstart', (e) => {
     startX = e.touches[0].clientX;
   }, { passive: true });
   
-  // Interceptar movimiento
   document.addEventListener('touchmove', (e) => {
-    const currentX = e.touches[0].clientX;
-    const diffX = currentX - startX;
-    
-    // Si el toque empezó en el borde izquierdo (0-50px) y se mueve hacia la derecha (diffX > 0)
-    // Es el gesto de "back" del sistema → Lo bloqueamos
-    if (startX < edgeThreshold && diffX > 10) {
+    // Si empieza en el borde izquierdo (0-30px) y va hacia derecha = back gesture
+    if (startX < 30 && e.touches[0].clientX > startX) {
       e.preventDefault();
     }
-  }, { passive: false }); // passive: false es necesario para preventDefault
-  
-  // Prevenir el comportamiento de "atrás" del navegador en la carga
-  if (window.history && window.history.pushState) {
-    // Crear una entrada dummy para que no salga de la app inmediatamente
-    window.history.pushState(null, null, window.location.href);
-    window.onpopstate = function() {
-      window.history.pushState(null, null, window.location.href);
-    };
-  }
+  }, { passive: false });
 })();
-
 
 /* === Base con selector personalizado y bloqueo modal scroll === */
 
