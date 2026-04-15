@@ -93,7 +93,7 @@ html {
 }
 
 html, body {
-  height: 100%;
+  height: 100vh;
   width: 100%;
   overflow: hidden;
   overscroll-behavior-x: none; /* Bloquea el overscroll horizontal del sistema */
@@ -129,12 +129,7 @@ body::before {
 
 @supports (-webkit-touch-callout: none) {
   /* CSS específico para iOS */
-  body::after {
-    content: '';
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
+  body::before {
     height: env(safe-area-inset-bottom);
     /*background: var(--void-black);*/
     z-index: 9999;
