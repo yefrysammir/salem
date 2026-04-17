@@ -219,23 +219,64 @@ body::before {
   filter: drop-shadow(0 0 10px rgba(0, 245, 255, 0.5));
 }
 
-/* Active tab */
+/* Tab Activo con efecto Glass Aurora igual que .card:hover */
 .tab.active {
-  background: var(--glass-aurora);
-  backdrop-filter: blur(15px);
-  border-radius: var(--radius-full);
-  border: 1px solid  rgba(0, 245, 255, 0.3);
-  transition: all 0.5s var(--ease-out-expo);
-}
-.tab.active span {
-color: white;
+  color: #fff;
+  border-color: rgba(0, 245, 255, 0.3);
+  box-shadow: 
+    0 0 20px rgba(0, 245, 255, 0.2),
+    0 0 40px rgba(184, 41, 221, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
 }
 
-.tab.active p {
-  opacity: 1;
-  color: white;
-  text-shadow: 0 0 10px rgba(0, 245, 255, 0.5);
+/* Fondo degradado sutil interior */
+.tab.active::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--gradient-aurora);
+  opacity: 0.15;
+  border-radius: inherit;
+  z-index: 0;
 }
+
+/* Glow difuso exterior (el efecto blur de neón) */
+.tab.active::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: var(--gradient-aurora);
+  border-radius: inherit;
+  z-index: -1;
+  opacity: 0.5;
+  filter: blur(12px);
+  transition: opacity 0.4s var(--ease-out-expo);
+}
+
+/* Asegurar que el contenido (icono/texto) esté por encima */
+.tab.active span,
+.tab.active p {
+  position: relative;
+  z-index: 1;
+}
+
+/* Icono con efecto degradado */
+.tab.active span {
+  background: var(--gradient-aurora);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 8px rgba(0, 245, 255, 0.6));
+}
+
+/* Texto con color cyan brillante */
+.tab.active p {
+  color: var(--neon-cyan);
+  text-shadow: 0 0 10px rgba(0, 245, 255, 0.6);
+}
+
+
 
 
 
