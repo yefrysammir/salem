@@ -102,32 +102,16 @@ html, body {
 
 body {
   font-family: var(--font-display);
-  background: red;
   color: #ffffff;
   -moz-osx-font-smoothing: grayscale;
   overscroll-behavior: none;
   touch-action: pan-y;
   user-select: none;
   -webkit-user-select: none;
-  
-}
-
-/* Animated background gradient */
-body::before {
-  content: '';
-  position: fixed;
-  top:0;
-  right: 0;
-  left: 0;
-  bottom: 0!important;
-  inset: 0;
   background: url(https://cdn.pixabay.com/photo/2017/08/25/18/48/watercolor-2681039_1280.jpg);
   background-size: cover;
-    filter: blur(150px);
-  z-index: -1;
+  filter: blur(150px);
 }
-
-
 /* ═══════════════════════════════════════════════════════════════
    BOTTOM NAVIGATION - FLOATING DOCK
    ═══════════════════════════════════════════════════════════════ */
