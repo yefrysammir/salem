@@ -80,8 +80,8 @@ body {
 .tabs {
   position: fixed;
   bottom: 0;
-  left: 50%;
-  right: auto;
+  left: 0;
+  right: 0;
   z-index: var(--z-sticky);
   padding: 8px 16px calc(8px + env(safe-area-inset-bottom));
   background: var(--glass);
@@ -194,12 +194,12 @@ main {
   padding: calc(env(safe-area-inset-top, 0px) + 0px);
   width: 100%;
   height: auto;
-  -webkit-overflow-scrolling: touch;
-  touch-action: pan-y pinch-zoom;
 }
 
 #main > div {
+  padding: 15px;
   width: 800px;
+  touch-action: pan-y;
 }
 
 main::-webkit-scrollbar {
