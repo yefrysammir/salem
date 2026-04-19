@@ -110,7 +110,7 @@ body::before {
   right: 0;
   transform: none;
   z-index: var(--z-sticky);
-  padding: 8px 16px calc(8px + env(safe-area-inset-bottom));
+  padding: 8px;
   background: var(--glass);
   backdrop-filter: blur(20px);
   border: none;
@@ -201,7 +201,7 @@ body::before {
 /* Mobile ajustes adicionales */
 @media (max-width: 480px) {
   .tabs {
-    padding: 6px 10px calc(6px + env(safe-area-inset-bottom));
+    padding: calc(15px + env(safe-area-inset-bottom));
 margin: var(--space-md);
   }
   
