@@ -82,7 +82,7 @@ body {
   position: fixed;
   min-height: 70px;
   height: auto;
-  bottom: calc(0px + env(safe-area-inset-bottom));
+  bottom: 5px;
   left: 0;
   right: 0;
   z-index: var(--z-sticky);
