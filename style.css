@@ -66,7 +66,7 @@ body {
   overflow: hidden;
   font-family: var(--font);
   color: #fff;
-  background: var(--void);
+  background: red;
   user-select: none;
   -webkit-user-select: none;
   -moz-osx-font-smoothing: grayscale;
@@ -171,24 +171,6 @@ body {
     margin-left: 4px;
   }
 }
-
-/* Mobile ajustes adicionales */
-@media (max-width: 480px) {
-  .tabs {
-    padding: 6px 10px calc(6px + env(safe-area-inset-bottom));
-margin: var(--space-md);
-  }
-  
-  .tab span {
-    font-size: 24px;
-  }
-  
-  .tab p {
-    font-size: 9px;
-    margin-top: 2px;
-  }
-}
-
 
 .tab:hover {
   color: rgba(255, 255, 255, 0.8);
