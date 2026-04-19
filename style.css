@@ -82,11 +82,11 @@ body {
   position: fixed;
   min-height: 70px;
   height: auto;
-  bottom: 10px;
+  bottom: 15px;
   left: 0;
   right: 0;
   z-index: var(--z-sticky);
-  padding: 8px 14px calc(8px + env(safe-area-inset-bottom));
+  padding: 8px 16px;
   background: var(--glass);
   backdrop-filter: blur(20px);
   border: 1px solid var(--glass-border);
