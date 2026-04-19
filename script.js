@@ -1,21 +1,14 @@
 /* ========== BLOQUEAR NAVEGACIÓN ATRÁS COMPLETAMENTE ========== */
 (function preventBackNavigation() {
-  // Empujar estado inicial
   history.pushState(null, document.title, location.href);
-  
-  // Cada vez que intenten ir atrás (incluyendo gestos), volver a empujar
   window.addEventListener('popstate', function(e) {
     history.pushState(null, document.title, location.href);
   });
-  
-  // Bloquear gesto swipe back en iOS específicamente en el borde
   let startX = 0;
   document.addEventListener('touchstart', (e) => {
     startX = e.touches[0].clientX;
   }, { passive: true });
-  
   document.addEventListener('touchmove', (e) => {
-    // Si empieza en el borde izquierdo (0-30px) y va hacia derecha = back gesture
     if (startX < 30 && e.touches[0].clientX > startX) {
       e.preventDefault();
     }
@@ -33,7 +26,7 @@ const modalTitle = document.getElementById('modalTitle');
 const modalMedia = document.getElementById('modalMedia');
 const modalClose = document.getElementById('modalClose');
 
-let PAGES = {}; // images and envi
+let PAGES = {};
 
 function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, c => ({
@@ -63,7 +56,7 @@ async function loadAllData(){
   PAGES.images = images || {title:'Collections', items:[]};
   PAGES.envi = envi || {title:'Channels', defaultStream:'foxsports'};
 
-  renderPage(localStorage.getItem(LS_TAB) || 'envi');
+  renderPage(localStorage.getItem(LS_TAB) || 'tv');
 }
 
 /* ---------------- SPA rendering ---------------- */
@@ -76,23 +69,23 @@ function setActiveTab(tabName, pushHistory=true){
 
 function renderPage(tabName){
   main.innerHTML = '';
-  if (tabName === 'images') renderImages();
-  else if (tabName === 'envi2') renderEnVi2(); // 👈 NUEVA FUNCIÓN
-  else renderEnVi(); // envi original
+  if (tabName === 'movies') renderImages();
+  else if (tabName === 'tv3') renderEnVi3();
+  else if (tabName === 'tv2') renderEnVi2();
+  else renderEnVi();
 }
 
-/* ---------------- Images ---------------- */
+/* ---------------- Images (Movies) ---------------- */
 function renderImages(){
   const p = PAGES.images || {title:'Collections', items:[]};
   const container = document.createElement('div');
   container.innerHTML = ``;
-  
+
   const searchWrap = document.createElement('div');
-  searchWrap.style.marginBottom = '12px';
+  searchWrap.style.marginBottom = '15px';
   searchWrap.innerHTML = `<input id="imgSearch" placeholder="Search movie..." style="width:100%;padding:10px;border-radius:15px;border:1px solid var(--glass-border);color: rgba(255, 255, 255, 0.5);">`;
   container.appendChild(searchWrap);
 
-  // --- Sección destacadas ---
   const featured = (p.items || []).filter(i => i.featured);
   if (featured.length > 0) {
     const featTitle = document.createElement('h4');
@@ -106,7 +99,7 @@ function renderImages(){
 
     featured.forEach(item => {
       const imgUrl = item.src || item.url || item.image || item.srcUrl || '';
-      const name = item.id || item.name || item.title || ('img-'+Math.random().toString(36).slice(2,8));
+      const name = item.title || item.name || item.id || ('img-'+Math.random().toString(36).slice(2,8));
       const tag = item.tag || '';
       const c = document.createElement('div');
       c.className = 'card featured';
@@ -123,13 +116,12 @@ function renderImages(){
     });
   }
 
-  // --- Resto de películas normales ---
   const grid = document.createElement('div');
   grid.className = 'grid';
   (p.items || []).filter(i => !i.featured).forEach(item => {
     const imgUrl = item.src || item.url || item.image || item.srcUrl || '';
-    const name = item.id || item.name || item.title || ('img-'+Math.random().toString(36).slice(2,8));
-    const tag = item.tag || ''; // etiqueta visible dentro de la imagen
+    const name = item.title || item.name || item.id || ('img-'+Math.random().toString(36).slice(2,8));
+    const tag = item.tag || '';
 
     const c = document.createElement('div');
     c.className = 'card';
@@ -149,7 +141,6 @@ function renderImages(){
   container.appendChild(grid);
   main.appendChild(container);
 
-  // --- Buscador ---
   const input = document.getElementById('imgSearch');
   let noResultsMsg = null;
   input.addEventListener('input', (e) => {
@@ -157,7 +148,7 @@ function renderImages(){
     let visible = 0;
     grid.querySelectorAll('.card').forEach(card => {
       const name = (card.querySelector('.iname')?.textContent || '').toLowerCase();
-      const tag = (card.querySelector('.img-number')?.textContent || '').toLowerCase(); // 👈 buscar también por tag
+      const tag = (card.querySelector('.img-number')?.textContent || '').toLowerCase();
       if (name.includes(v) || tag.includes(v)) {
         card.style.display = '';
         visible++;
@@ -180,9 +171,8 @@ function renderImages(){
     }
   });
 
-  // --- Verificar estado inicial y actualizar automáticamente ---
   updateAllVideoStatuses();
-  setInterval(updateAllVideoStatuses, 60000); // cada 60 segundos
+  setInterval(updateAllVideoStatuses, 60000);
 }
 
 /* ---------------- Verificar estado de videos ---------------- */
@@ -202,27 +192,20 @@ function updateAllVideoStatuses(){
 
 async function checkVideoStatus(url) {
   try {
-    // Si es un .m3u8 o .mpd, no siempre responden a HEAD, probamos GET con rango
     const res = await fetch(url, {
       method: 'GET',
       headers: { Range: 'bytes=0-1024' },
-      mode: 'cors' // intenta obtener respuesta real
+      mode: 'cors'
     });
-
-    // Si devuelve 200 o 206, está disponible
     if (res.status === 200 || res.status === 206) return true;
-
-    // Si es tipo "opaque", asumimos que no podemos confirmar (mejor falso)
     if (res.type === 'opaque') return false;
-
     return false;
   } catch (err) {
-    // Error de red o CORS -> consideramos caído
     return false;
   }
 }
 
-/* ---------------- CSS ---------------- */
+/* ---------------- CSS inline para status ---------------- */
 const style = document.createElement('style');
 style.textContent = `
 .status-circle {
@@ -260,7 +243,7 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-/* ---------------- Custom player robust v1.4 (iOS AirPlay + fullscreen + resume + gestures + PiP optimizado) ---------------- */
+/* ---------------- Custom Player ---------------- */
 (function(){
   const modalFullEl = document.getElementById('modalFull');
   const modalMediaEl = document.getElementById('modalMedia');
@@ -268,7 +251,6 @@ document.head.appendChild(style);
   const modalCloseEl = document.getElementById('modalClose');
 
   function isIOS(){ return /iPhone|iPad|iPod/.test(navigator.userAgent); }
-  function isAndroid(){ return /Android/i.test(navigator.userAgent); }
   function isStandaloneIOS(){ return (('standalone' in navigator && navigator.standalone) || window.matchMedia('(display-mode: standalone)').matches) && isIOS(); }
   function formatTime(sec){ if(!isFinite(sec)||isNaN(sec))return'0:00';const h=Math.floor(sec/3600);const m=Math.floor((sec%3600)/60);const s=Math.floor(sec%60);return h>0?`${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`:`${m}:${String(s).padStart(2,'0')}`; }
   function supportsPiP(video){ try{ if('pictureInPictureEnabled'in document&&typeof video.requestPictureInPicture==='function')return true;
@@ -295,15 +277,9 @@ document.head.appendChild(style);
     const controls=document.createElement('div'); controls.className='cp-controls visible';
     const showPip=!isStandaloneIOS()&&supportsPiP(video);
 
-    // --- Detectar compatibilidad de transmisión ---
     const supportsAirPlay = typeof video.webkitShowPlaybackTargetPicker === 'function';
-    const supportsCast = !!(window.chrome && (chrome.cast || (window.cast && window.cast.framework)));
-
     let transmitIcon = '';
-    // 🔹 Solo mostrar AirPlay en iOS. Cast está temporalmente deshabilitado.
     if (supportsAirPlay && isIOS()) transmitIcon = 'airplay';
-    // Para reactivar Cast en Android o navegadores, descomenta la línea siguiente:
-    // else if (supportsCast && !isIOS()) transmitIcon = 'cast';
 
     controls.innerHTML=`
       <div class="cp-center">
@@ -350,7 +326,6 @@ document.head.appendChild(style);
       if(!isNaN(pct)){progressEl.value=pct;fillEl.style.width=pct+'%';handleEl.style.left=pct+'%';}
       curEl.textContent=formatTime(cur);durEl.textContent=formatTime(dur);}
 
-    // --- Play antirebote ---
     let playLock=false;
     playBtn.addEventListener('click',async()=>{if(playLock)return;playLock=true;try{
       if(video.paused||video.ended){await video.play().catch(()=>{});}else{video.pause();}
@@ -358,14 +333,11 @@ document.head.appendChild(style);
     video.addEventListener('play',()=>{playBtn.firstElementChild.textContent='pause';});
     video.addEventListener('pause',()=>{playBtn.firstElementChild.textContent='play_arrow';});
 
-    // --- Skip ---
     revBtn.addEventListener('click',()=>{video.currentTime=Math.max(0,(video.currentTime||0)-10);updateUI();});
     fwdBtn.addEventListener('click',()=>{video.currentTime=Math.min((video.duration||Infinity),(video.currentTime||0)+10);updateUI();});
 
-    // --- Mute ---
     muteBtn.addEventListener('click',()=>{video.muted=!video.muted;muteBtn.firstElementChild.textContent=video.muted?'volume_off':'volume_up';});
 
-    // --- PiP ---
     if(pipBtn)pipBtn.addEventListener('click',async()=>{try{
       if(typeof video.requestPictureInPicture==='function'){
         if(document.pictureInPictureElement)await document.exitPictureInPicture();
@@ -376,13 +348,11 @@ document.head.appendChild(style);
         else video.webkitSetPresentationMode('picture-in-picture');
       }
     }catch(e){console.warn('pip err',e);}});
-    
-    // --- AirPlay ---
+
     if(castBtn && isIOS()){
     castBtn.addEventListener('click',()=>video.webkitShowPlaybackTargetPicker());
     }
 
-    // --- Fullscreen nativo ---
     fullBtn.addEventListener('click',async()=>{
       try{
         if(document.fullscreenElement){if(document.exitFullscreen)await document.exitFullscreen();else if(document.webkitExitFullscreen)document.webkitExitFullscreen();fullBtn.firstElementChild.textContent='fullscreen';return;}
@@ -392,7 +362,6 @@ document.head.appendChild(style);
     });
     document.addEventListener('fullscreenchange',()=>{const isFs=!!document.fullscreenElement;fullBtn.firstElementChild.textContent=isFs?'fullscreen_exit':'fullscreen';});
 
-    // --- Auto-hide controls + close ---
     let hideTimer=null;
     function showControlsTemporary(){
       controls.classList.add('visible');clearTimeout(hideTimer);
@@ -410,7 +379,6 @@ document.head.appendChild(style);
     wrap.addEventListener('touchstart',showControlsTemporary,{passive:true});
     showControlsTemporary();
 
-    // --- Progress bar ---
     let duringSeek=false;
     progressEl.addEventListener('input',(e)=>{duringSeek=true;const pct=Number(e.target.value||0);const dur=video.duration||0;
       fillEl.style.width=pct+'%';handleEl.style.left=pct+'%';if(dur)curEl.textContent=formatTime((pct/100)*dur);handleEl.classList.add('active');});
@@ -418,7 +386,6 @@ document.head.appendChild(style);
     video.addEventListener('timeupdate',()=>{if(!duringSeek)updateUI();});
     video.addEventListener('loadedmetadata',updateUI);
 
-    // --- Resume localStorage optimizado ---
     try{
       const saved=JSON.parse(localStorage.getItem(vidKey)||'{}');
       if(saved && saved.t && saved.t>3){
@@ -436,7 +403,6 @@ document.head.appendChild(style);
         resumeBox.querySelector('.cp-yes').onclick=()=>{video.currentTime=saved.t;resumeBox.remove();video.play().catch(()=>{});};
         resumeBox.querySelector('.cp-no').onclick=()=>{localStorage.removeItem(vidKey);resumeBox.remove();video.play().catch(()=>{});};
       }
-      // Guardar progreso cada 3 segundos
       let lastSave=0;
       video.addEventListener('timeupdate',()=>{
         const now=Date.now();
@@ -448,18 +414,6 @@ document.head.appendChild(style);
       video.addEventListener('ended',()=>localStorage.removeItem(vidKey));
     }catch(e){console.warn('resume err',e);}
 
-    // --- Gestos táctiles ---
-    /*if('ontouchstart'in window){
-      let lastTap=0,tapTimeout=null;
-      wrap.addEventListener('touchend',(ev)=>{
-        const target=ev.target;if(target.closest('.cp-btn')||target.closest('.cp-progress')||target.closest('.cp-bar'))return;
-        const now=Date.now(),dt=now-lastTap,touch=ev.changedTouches[0],rect=wrap.getBoundingClientRect(),x=touch.clientX-rect.left,half=rect.width/2;
-        if(dt<300&&dt>0){clearTimeout(tapTimeout);if(x<half)video.currentTime=Math.max(0,video.currentTime-10);else video.currentTime=Math.min(video.duration||Infinity,video.currentTime+10);lastTap=0;return;}
-        tapTimeout=setTimeout(()=>{if(video.paused)video.play().catch(()=>{});else video.pause();},250);lastTap=now;
-      },{passive:true});
-    }*/
-
-    // --- Abrir modal ---
     modalFullEl.classList.add('active');
     modalFullEl.setAttribute('aria-hidden','false');
     document.body.classList.add('no-scroll');
@@ -506,7 +460,7 @@ function closeAllPanels() {
 
 
 
-/* ---------------- EnVi ---------------- */
+/* ---------------- TV (antes envi) ---------------- */
 function renderEnVi() {
   const p = PAGES.envi || { title: 'Channels', defaultStream: 'foxsports' };
   const container = document.createElement('div');
@@ -557,14 +511,12 @@ function renderEnVi() {
 <div data-value="foxsports"><img src="i/foxsports.png" />Fox Sports</div>
 <div data-value="foxsports2"><img src="i/foxsports.png" />Fox Sports 2</div>
 <div data-value="foxsports3"><img src="i/foxsports.png" />Fox Sports 3</div>
-<div data-value="tntsports">TNT Sports</div>
-<div data-value="tntsportschile">TNT Sports Chile</div>
-<div data-value="tudn">TUDN</div>
-<div data-value="mls1es">MLS 1</div>
-<div data-value="winsports">Win Sports</div>
-<div data-value="winsports2">Win Sports 2</div>
-<div data-value="winsportsplus">Win Sports +</div>
-<div data-value="sky_sports_laliga">SKY LaLiga</div>
+<div data-value="tntsports"><img src="i/tntsports.png" />TNT Sports</div>
+<div data-value="tudn"><img src="i/tudn.png" />TUDN</div>
+<div data-value="winsports"><img src="i/winsports.png" />Win Sports</div>
+<div data-value="winsports2"><img src="i/winsports.png" />Win Sports 2</div>
+<div data-value="winsportsplus"><img src="i/winsports.png" />Win Sports +</div>
+<div data-value="sky_sports_laliga"><img src="i/skyliga.png" />SKY LaLiga</div>
 
 <div data-value="liga1max"><img src="i/l1max.png" />L1 MAX</div>
 <div data-value="movistar"><img src="i/movistar.png" />Movistar Deportes</div>
@@ -601,7 +553,6 @@ function renderEnVi() {
     if (badge) badge.classList.add('visible');
   };
 
-  // 🔁 Botón recargar (versión estable y compatible con menú)
   document.getElementById('reloadBtn').addEventListener('click', () => {
     if (loader) loader.style.display = 'flex';
     if (badge) badge.classList.remove('visible');
@@ -629,7 +580,6 @@ function renderEnVi() {
       oldIframe.parentNode.replaceChild(newIframe, oldIframe);
     }
 
-    // ✅ Re-inicializamos los eventos del selector con un pequeño retraso
     setTimeout(() => initCustomSelector(), 50);
   });
 
@@ -648,22 +598,18 @@ function initCustomSelector() {
   const toggleArrow    = custom.querySelector('.arrow-toggle');
   const backdrop       = getPanelBackdrop();
 
-  // 🔴 MOVER EL MENÚ AL BODY para evitar stacking context del contenedor
   if (options.parentElement !== document.body) {
     document.body.appendChild(options);
-    // Añadir clase para identificar que es el menú de este selector
     options.dataset.selectorId = 'canalSelectorCustom';
   }
 
-  // Resto de la configuración igual que antes...
   options.classList.remove('hidden');
 
-  // Inyectar header una sola vez
   if (!options.querySelector('.panel-header')) {
     const hdr = document.createElement('div');
     hdr.className = 'panel-header';
     hdr.innerHTML = `
-      <span class="panel-header-title">Canales</span>
+      <span class="panel-header-title">Channels</span>
       <button class="panel-close-btn" title="Cerrar panel">
         <span class="material-symbols-outlined">close</span>
       </button>`;
@@ -682,7 +628,6 @@ function initCustomSelector() {
     options.classList.add('panel-open');
     backdrop.classList.add('active');
     toggleArrow.textContent = 'remove';
-    // Scroll al canal activo
     const active = optionsContainer.querySelector('.active-option');
     if (active) setTimeout(() => active.scrollIntoView({ block: 'nearest', behavior: 'smooth' }), 100);
   };
@@ -693,7 +638,6 @@ function initCustomSelector() {
     toggleArrow.textContent = 'add';
   };
 
-  // Estado inicial
   const canalSaved = localStorage.getItem('canalSeleccionado') || 'foxsports';
   let currentIndex = optionList.findIndex(o => o.dataset.value === canalSaved);
   if (currentIndex < 0) currentIndex = 0;
@@ -715,7 +659,6 @@ function initCustomSelector() {
     currentIndex = index;
   };
 
-  // Evitar listeners duplicados
   if (!display._panelBound) {
     display.addEventListener('click', () =>
       options.classList.contains('panel-open') ? closePanel() : openPanel()
@@ -733,7 +676,7 @@ function initCustomSelector() {
       optionsContainer.scrollTop -= (optionList[0]?.offsetHeight || 44) * 3;
     };
   }
-  
+
   if (scrollDown) {
     scrollDown.onclick = e => {
       e.stopPropagation();
@@ -743,9 +686,9 @@ function initCustomSelector() {
 }
 
 
-/* ---------------- EnVi 2 ---------------- */
+/* ---------------- TV2 (NUEVA - streamtpnew) ---------------- */
 function renderEnVi2() {
-  const p = PAGES.envi2 || { title: 'Channels 2', defaultStream: 'history' };
+  const p = PAGES.envi2 || { title: 'Channels 2', defaultStream: 'espn' };
   const container = document.createElement('div');
   container.innerHTML = `
     <div class="iframe-container">
@@ -760,7 +703,7 @@ function renderEnVi2() {
       <img src="https://iili.io/FPk2m9n.png" alt="STV" />
       <div style="display: none;" class="title">TV</div>
     </div>
-            <span class="selected-text highlight">History</span>
+            <span class="selected-text highlight">ESPN</span>
             <span id="liveBadge2" class="live-badge"><span class="dot">LIVE</span></span>
           </div>
           <span class="material-symbols-outlined arrow-toggle">add</span>
@@ -769,41 +712,48 @@ function renderEnVi2() {
         <div class="selector-options hidden">
           <span class="scroll-btn up material-symbols-outlined">expand_less</span>
           <div class="options-container">
-            <div data-value="americatv">America TV</div>
-<div data-value="animalplanet">Animal Planet</div>
-<div data-value="atv">ATV</div>
-<div data-value="axn">AXN</div>
-<div data-value="cartoonnetwork">Cartoon Network</div>
-<div data-value="cinecanal">CINECANAL</div>
-<div data-value="cinemax">CINEMAX</div>
-<div data-value="discoverykids">Discovery Kids</div>
-<div data-value="discoverychannel">Discovery Channel</div>
-<div data-value="discoveryhyh">Discovery H&H</div>
-<div data-value="distritocomedia">Distrito Comedia</div>
-<div data-value="disneychannel">Disney Channel</div>
-<div data-value="disneyjr">Disney Junior</div>
-<div data-value="fx">FX</div>
-<div data-value="goldenedge">GOLDEN EDGE</div>
-<div data-value="goldenplus">GOLDEN PLUS</div>
-<div data-value="goldenpremier">GOLDEN PREMIER</div>
-<div data-value="history">History</div>
-<div data-value="history2">History 2</div>
-<div data-value="idinvestigation">ID Investigation</div>
-<div data-value="latina">Latina</div>
-<div data-value="paramountchannel">PARAMOUNT TV</div>
-<div data-value="natgeo">NAT GEO</div>
-<div data-value="nick">Nickelodeon</div>
-<div data-value="nickjr">Nickelodeon JR</div>
-<div data-value="space">Space</div>
-<div data-value="starchannel">Star Channel</div>
-<div data-value="studiouniversal">Studio Universal</div>
-<div data-value="telemundo51">Telemundo Miami</div>
-<div data-value="telemundopuertorico">Telemundo PR</div>
-<div data-value="tnt">TNT</div>
-<div data-value="tnt">TNT Series</div>
-<div data-value="tooncast">TOONCAST</div>
-<div data-value="universalchannel">UNIVERSAL TV</div>
-<div data-value="willax">Willax TV</div>
+<div data-value="espndeportes"><img src="i/espn.png" />ESPN Deportes</div>
+<div data-value="espnpremium"><img src="i/espn.png" />ESPN Premium</div>
+<div data-value="espn"><img src="i/espn.png" />ESPN</div>
+<div data-value="espn2"><img src="i/espn.png" />ESPN 2</div>
+<div data-value="espn3"><img src="i/espn.png" />ESPN 3</div>
+<div data-value="espn4"><img src="i/espn.png" />ESPN 4</div>
+<div data-value="espn5"><img src="i/espn.png" />ESPN 5</div>
+<div data-value="espn6"><img src="i/espn.png" />ESPN 6</div>
+<div data-value="espn7"><img src="i/espn.png" />ESPN 7</div>
+<div data-value="disney1"><img src="i/disneyplus.png" />Disney 1</div>
+<div data-value="disney2"><img src="i/disneyplus.png" />Disney 2</div>
+<div data-value="disney3"><img src="i/disneyplus.png" />Disney 3</div>
+<div data-value="disney4"><img src="i/disneyplus.png" />Disney 4</div>
+<div data-value="disney5"><img src="i/disneyplus.png" />Disney 5</div>
+<div data-value="disney6"><img src="i/disneyplus.png" />Disney 6</div>
+<div data-value="disney7"><img src="i/disneyplus.png" />Disney 7</div>
+<div data-value="disney8"><img src="i/disneyplus.png" />Disney 8</div>
+<div data-value="disney9"><img src="i/disneyplus.png" />Disney 9</div>
+<div data-value="disney10"><img src="i/disneyplus.png" />Disney 10</div>
+<div data-value="disney11"><img src="i/disneyplus.png" />Disney 11</div>
+<div data-value="disney12"><img src="i/disneyplus.png" />Disney 12</div>
+<div data-value="disney13"><img src="i/disneyplus.png" />Disney 13</div>
+<div data-value="dsports"><img src="i/dsports.png" />DSports</div>
+<div data-value="dsports2"><img src="i/dsports.png" />DSports 2</div>
+<div data-value="dsportsplus"><img src="i/dsports.png" />DSports Plus</div>
+<div data-value="liga1max"><img src="i/l1max.png" />L1 MAX</div>
+<div data-value="fanatiz1"><img src="i/fanatiz.png" />Fanatiz 1</div>
+<div data-value="fanatiz2"><img src="i/fanatiz.png" />Fanatiz 2</div>
+<div data-value="fanatiz3"><img src="i/fanatiz.png" />Fanatiz 3</div>
+<div data-value="fanatiz4"><img src="i/fanatiz.png" />Fanatiz 4</div>
+<div data-value="fanatiz5"><img src="i/fanatiz.png" />Fanatiz 5</div>
+<div data-value="fanatiz6"><img src="i/fanatiz.png" />Fanatiz 6</div>
+<div data-value="fanatiz7"><img src="i/fanatiz.png" />Fanatiz 7</div>
+<div data-value="fanatiz8"><img src="i/fanatiz.png" />Fanatiz 8</div>
+<div data-value="fanatiz9"><img src="i/fanatiz.png" />Fanatiz 9</div>
+<div data-value="fanatiz10"><img src="i/fanatiz.png" />Fanatiz 10</div>
+<div data-value="nba1"><img src="i/appletv.png" />NBA 1</div>
+<div data-value="nba2"><img src="i/appletv.png" />NBA 2</div>
+<div data-value="nba3"><img src="i/appletv.png" />NBA 3</div>
+<div data-value="mls1en"><img src="i/appletv.png" />MLS 1</div>
+<div data-value="mls2en"><img src="i/appletv.png" />MLS 2</div>
+<div data-value="mls3en"><img src="i/appletv.png" />MLS 3</div>
           </div>
           <span class="scroll-btn down material-symbols-outlined">expand_more</span>
         </div>
@@ -819,9 +769,9 @@ function renderEnVi2() {
   const iframe = document.getElementById('videoIframe2');
   const loader = document.getElementById('loader2');
   const badge = document.getElementById('liveBadge2');
-  const canalSaved = localStorage.getItem('canalSeleccionado2') || p.defaultStream || 'history';
+  const canalSaved = localStorage.getItem('canalSeleccionado2') || p.defaultStream || 'espn';
 
-  iframe.src = `https://embed.saohgdasregions.fun/embed/${canalSaved}.html`;
+  iframe.src = `https://streamtpnew.com/global1.php?stream=${canalSaved}`;
   iframe.onload = () => {
     if (loader) loader.style.display = 'none';
     if (badge) badge.classList.add('visible');
@@ -831,8 +781,8 @@ function renderEnVi2() {
     if (loader) loader.style.display = 'flex';
     if (badge) badge.classList.remove('visible');
 
-    const canalActual = localStorage.getItem('canalSeleccionado2') || p.defaultStream || 'history';
-    const srcUrl = `https://embed.saohgdasregions.fun/embed/${canalActual}.html`;
+    const canalActual = localStorage.getItem('canalSeleccionado2') || p.defaultStream || 'espn';
+    const srcUrl = `https://streamtpnew.com/global1.php?stream=${canalActual}`;
 
     const newIframe = document.createElement('iframe');
     newIframe.id = 'videoIframe2';
@@ -860,7 +810,6 @@ function renderEnVi2() {
   initCustomSelector2();
 }
 
-
 function initCustomSelector2() {
   const custom = document.getElementById('canalSelectorCustom2');
   if (!custom) return;
@@ -873,7 +822,6 @@ function initCustomSelector2() {
   const toggleArrow    = custom.querySelector('.arrow-toggle');
   const backdrop       = getPanelBackdrop();
 
-  // 🔴 MOVER EL MENÚ AL BODY
   if (options.parentElement !== document.body) {
     document.body.appendChild(options);
     options.dataset.selectorId = 'canalSelectorCustom2';
@@ -885,7 +833,7 @@ function initCustomSelector2() {
     const hdr = document.createElement('div');
     hdr.className = 'panel-header';
     hdr.innerHTML = `
-      <span class="panel-header-title">Canales</span>
+      <span class="panel-header-title">Channels</span>
       <button class="panel-close-btn" title="Cerrar panel">
         <span class="material-symbols-outlined">close</span>
       </button>`;
@@ -914,7 +862,7 @@ function initCustomSelector2() {
     toggleArrow.textContent = 'add';
   };
 
-  const canalSaved = localStorage.getItem('canalSeleccionado2') || 'history';
+  const canalSaved = localStorage.getItem('canalSeleccionado2') || 'espn';
   let currentIndex = optionList.findIndex(o => o.dataset.value === canalSaved);
   if (currentIndex < 0) currentIndex = 0;
   text.textContent = optionList[currentIndex]?.textContent || 'Canal';
@@ -931,6 +879,224 @@ function initCustomSelector2() {
     if (loader) loader.style.display = 'flex';
     if (badge)  badge.classList.remove('visible');
     const iframe = document.getElementById('videoIframe2');
+    if (iframe) iframe.src = `https://streamtpnew.com/global1.php?stream=${value}&v=${Date.now()}`;
+    currentIndex = index;
+  };
+
+  if (!display._panelBound) {
+    display.addEventListener('click', () =>
+      options.classList.contains('panel-open') ? closePanel() : openPanel()
+    );
+    display._panelBound = true;
+  }
+
+  optionList.forEach((opt, i) => {
+    opt.onclick = () => { updateSelection(i); closePanel(); };
+  });
+
+  if (scrollUp) {
+    scrollUp.onclick = e => {
+      e.stopPropagation();
+      optionsContainer.scrollTop -= (optionList[0]?.offsetHeight || 44) * 3;
+    };
+  }
+
+  if (scrollDown) {
+    scrollDown.onclick = e => {
+      e.stopPropagation();
+      optionsContainer.scrollTop += (optionList[0]?.offsetHeight || 44) * 3;
+    };
+  }
+}
+
+
+/* ---------------- TV3 (antes envi2 - saohgdasregions) ---------------- */
+function renderEnVi3() {
+  const p = PAGES.envi3 || { title: 'Channels 3', defaultStream: 'history' };
+  const container = document.createElement('div');
+  container.innerHTML = `
+    <div class="iframe-container">
+      <div class="loader" id="loader3"><span></span></div>
+      <iframe id="videoIframe3" allow="picture-in-picture" playsinline webkit-playsinline allowfullscreen></iframe>
+    </div>
+    <div class="controls">
+      <div class="custom-selector" id="canalSelectorCustom3">
+        <div class="selector-display">
+          <div class="selector-left">
+            <div class="center">
+      <img src="https://iili.io/FPk2m9n.png" alt="STV" />
+      <div style="display: none;" class="title">TV</div>
+    </div>
+            <span class="selected-text highlight">History</span>
+            <span id="liveBadge3" class="live-badge"><span class="dot">LIVE</span></span>
+          </div>
+          <span class="material-symbols-outlined arrow-toggle">add</span>
+        </div>
+
+        <div class="selector-options hidden">
+          <span class="scroll-btn up material-symbols-outlined">expand_less</span>
+          <div class="options-container">
+            <div data-value="americatv">America TV</div>
+<div data-value="animalplanet">Animal Planet</div>
+<div data-value="atv">ATV</div>
+<div data-value="axn">AXN</div>
+<div data-value="aztecauno">AZTECA UNO</div>
+<div data-value="cartoonnetwork">Cartoon Network</div>
+<div data-value="cinecanal">CINECANAL</div>
+<div data-value="cinemax">CINEMAX</div>
+<div data-value="discoverychannel">Discovery Channel</div>
+<div data-value="discoveryhyh">Discovery H&H</div>
+<div data-value="distritocomedia">Distrito Comedia</div>
+<div data-value="disneychannel">Disney Channel</div>
+<div data-value="fmhotkids">FM HOT KIDS</div>
+<div data-value="fx">FX</div>
+<div data-value="goldenedge">GOLDEN EDGE</div>
+<div data-value="goldenplus">GOLDEN PLUS</div>
+<div data-value="goldenpremier">GOLDEN PREMIER</div>
+<div data-value="history">History</div>
+<div data-value="history2">History 2</div>
+<div data-value="idinvestigation">ID Investigation</div>
+<div data-value="latina">Latina</div>
+<div data-value="liga1">Liga 1</div>
+<div data-value="liga1max">Liga 1 Max</div>
+<div data-value="natgeo">NAT GEO</div>
+<div data-value="rcn">RCN</div>
+<div data-value="space">Space</div>
+<div data-value="starchannel">Star Channel</div>
+<div data-value="studiouniversal">Studio Universal</div>
+<div data-value="syfy">SYFY USA</div>
+<div data-value="telemundo51">Telemundo Miami</div>
+<div data-value="telemundopuertorico">Telemundo Puerto Rico</div>
+<div data-value="tnt">TNT</div>
+<div data-value="tntseries">TNT Series</div>
+<div data-value="tooncast">TOONCAST</div>
+<div data-value="universalchannel">UNIVERSAL TV</div>
+<div data-value="warnerchannel">WARNER BROS TV</div>
+          </div>
+          <span class="scroll-btn down material-symbols-outlined">expand_more</span>
+        </div>
+      </div>
+
+        <button class="btn-icon" id="reloadBtn3" title="Recargar canal">
+          <span class="material-symbols-outlined">refresh</span>
+        </button>
+    </div>
+  `;
+  main.appendChild(container);
+
+  const iframe = document.getElementById('videoIframe3');
+  const loader = document.getElementById('loader3');
+  const badge = document.getElementById('liveBadge3');
+  const canalSaved = localStorage.getItem('canalSeleccionado3') || p.defaultStream || 'history';
+
+  iframe.src = `https://embed.saohgdasregions.fun/embed/${canalSaved}.html`;
+  iframe.onload = () => {
+    if (loader) loader.style.display = 'none';
+    if (badge) badge.classList.add('visible');
+  };
+
+  document.getElementById('reloadBtn3').addEventListener('click', () => {
+    if (loader) loader.style.display = 'flex';
+    if (badge) badge.classList.remove('visible');
+
+    const canalActual = localStorage.getItem('canalSeleccionado3') || p.defaultStream || 'history';
+    const srcUrl = `https://embed.saohgdasregions.fun/embed/${canalActual}.html`;
+
+    const newIframe = document.createElement('iframe');
+    newIframe.id = 'videoIframe3';
+    newIframe.allow = 'picture-in-picture';
+    newIframe.setAttribute('playsinline', '');
+    newIframe.setAttribute('webkit-playsinline', '');
+    newIframe.setAttribute('allowfullscreen', '');
+    newIframe.style.width = '100%';
+    newIframe.style.height = '100%';
+    newIframe.src = srcUrl + (srcUrl.includes('?') ? '&' : '?') + 'reload=' + Date.now();
+
+    newIframe.onload = () => {
+      if (loader) loader.style.display = 'none';
+      if (badge) badge.classList.add('visible');
+    };
+
+    const oldIframe = document.getElementById('videoIframe3');
+    if (oldIframe && oldIframe.parentNode) {
+      oldIframe.parentNode.replaceChild(newIframe, oldIframe);
+    }
+
+    setTimeout(() => initCustomSelector3(), 50);
+  });
+
+  initCustomSelector3();
+}
+
+function initCustomSelector3() {
+  const custom = document.getElementById('canalSelectorCustom3');
+  if (!custom) return;
+
+  const display        = custom.querySelector('.selector-display');
+  const options        = custom.querySelector('.selector-options');
+  const text           = custom.querySelector('.selected-text');
+  const loader         = document.getElementById('loader3');
+  const badge          = document.getElementById('liveBadge3');
+  const toggleArrow    = custom.querySelector('.arrow-toggle');
+  const backdrop       = getPanelBackdrop();
+
+  if (options.parentElement !== document.body) {
+    document.body.appendChild(options);
+    options.dataset.selectorId = 'canalSelectorCustom3';
+  }
+
+  options.classList.remove('hidden');
+
+  if (!options.querySelector('.panel-header')) {
+    const hdr = document.createElement('div');
+    hdr.className = 'panel-header';
+    hdr.innerHTML = `
+      <span class="panel-header-title">Channels</span>
+      <button class="panel-close-btn" title="Cerrar panel">
+        <span class="material-symbols-outlined">close</span>
+      </button>`;
+    options.insertBefore(hdr, options.firstChild);
+    hdr.querySelector('.panel-close-btn')
+       .addEventListener('click', e => { e.stopPropagation(); closeAllPanels(); });
+  }
+
+  const optionList     = [...options.querySelectorAll('.options-container div')];
+  const scrollUp       = options.querySelector('.scroll-btn.up');
+  const scrollDown     = options.querySelector('.scroll-btn.down');
+  const optionsContainer = options.querySelector('.options-container');
+
+  const openPanel = () => {
+    closeAllPanels();
+    options.classList.add('panel-open');
+    backdrop.classList.add('active');
+    toggleArrow.textContent = 'remove';
+    const active = optionsContainer.querySelector('.active-option');
+    if (active) setTimeout(() => active.scrollIntoView({ block: 'nearest', behavior: 'smooth' }), 100);
+  };
+
+  const closePanel = () => {
+    options.classList.remove('panel-open');
+    backdrop.classList.remove('active');
+    toggleArrow.textContent = 'add';
+  };
+
+  const canalSaved = localStorage.getItem('canalSeleccionado3') || 'history';
+  let currentIndex = optionList.findIndex(o => o.dataset.value === canalSaved);
+  if (currentIndex < 0) currentIndex = 0;
+  text.textContent = optionList[currentIndex]?.textContent || 'Canal';
+  optionList[currentIndex]?.classList.add('active-option');
+
+  const updateSelection = (index) => {
+    if (index < 0 || index >= optionList.length) return;
+    optionList.forEach(o => o.classList.remove('active-option'));
+    const selected = optionList[index];
+    selected.classList.add('active-option');
+    const value = selected.dataset.value;
+    text.textContent = selected.textContent;
+    localStorage.setItem('canalSeleccionado3', value);
+    if (loader) loader.style.display = 'flex';
+    if (badge)  badge.classList.remove('visible');
+    const iframe = document.getElementById('videoIframe3');
     if (iframe) iframe.src = `https://embed.saohgdasregions.fun/embed/${value}.html?v=${Date.now()}`;
     currentIndex = index;
   };
@@ -952,7 +1118,7 @@ function initCustomSelector2() {
       optionsContainer.scrollTop -= (optionList[0]?.offsetHeight || 44) * 3;
     };
   }
-  
+
   if (scrollDown) {
     scrollDown.onclick = e => {
       e.stopPropagation();
@@ -964,12 +1130,12 @@ function initCustomSelector2() {
 /* ---------------- Tabs, history, swipe ---------------- */
 tabs.forEach(t => t.addEventListener('click', ()=> setActiveTab(t.dataset.tab)));
 
-const last = 'envi';
+const last = 'tv';
 setActiveTab(last, false);
 history.replaceState({tab:last}, '', `#${last}`);
 
 window.addEventListener('popstate', (ev) => {
-  const tab = (ev.state && ev.state.tab) || window.location.hash.replace('#','') || localStorage.getItem(LS_TAB) || 'envi';
+  const tab = (ev.state && ev.state.tab) || window.location.hash.replace('#','') || localStorage.getItem(LS_TAB) || 'tv';
   setActiveTab(tab, false);
 });
 
@@ -987,20 +1153,19 @@ main.addEventListener('touchend', (e)=> {
   const diffX = touchEndX - touchStartX;
   const diffY = touchEndY - touchStartY;
 
-  // 👉 Solo consideramos swipe si el movimiento horizontal es mayor al vertical
   if (Math.abs(diffX) < 50 || Math.abs(diffX) < Math.abs(diffY)) return;
 
   const order = Array.from(tabs).map(t=>t.dataset.tab);
-  const current = localStorage.getItem(LS_TAB) || 'envi';
+  const current = localStorage.getItem(LS_TAB) || 'tv';
   let idx = order.indexOf(current);
 
-  if (diffX < 0 && idx < order.length-1) idx++; // derecha → izquierda
-  if (diffX > 0 && idx > 0) idx--;             // izquierda → derecha
+  if (diffX < 0 && idx < order.length-1) idx++;
+  if (diffX > 0 && idx > 0) idx--;
 
   setActiveTab(order[idx]);
 }, {passive:true});
 
-/* --- 🔒 Bloqueos ---
+/* --- 🔒 Bloqueos --- */
 document.addEventListener('contextmenu', event => event.preventDefault());
 document.onkeydown = function(e) {
   if (e.keyCode == 123) return false;
@@ -1008,6 +1173,7 @@ document.onkeydown = function(e) {
   if (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) return false;
   if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false;
 };
+
 
 /* ---------------- Initial load ---------------- */
 (async function init(){ await loadAllData(); })();
