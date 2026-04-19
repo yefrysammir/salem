@@ -68,6 +68,7 @@ body {
   color: #fff;
   background: var(--void);
   user-select: none;
+  scroll-behavior: smooth;
   -webkit-user-select: none;
   -moz-osx-font-smoothing: grayscale;
   overscroll-behavior-x: none;
@@ -195,12 +196,13 @@ main {
   padding: calc(env(safe-area-inset-top, 0px) + 0px);
   width: 100%;
   height: auto;
+  min-height: auto;
+  max-height: 100%;
 }
 
 #main > div {
   padding: 15px;
   width: 800px;
-  touch-action: pan-y;
 }
 
 main::-webkit-scrollbar {
