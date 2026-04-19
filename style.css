@@ -194,10 +194,6 @@ body {
 
 main {
   padding: calc(env(safe-area-inset-top, 0px) + 0px);
-  width: 100%;
-  height: auto;
-  min-height: auto;
-  max-height: 100%;
 }
 
 #main > div {
