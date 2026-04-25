@@ -508,7 +508,11 @@ height: 26px;
   background: var(--gradient-main);
   border-radius: 99px;
 }
-
+.selector-options img {
+width: 35px;
+height: auto;
+margin-right: 10px;
+}
 .scroll-btn {
   display: flex;
   align-items: center;
