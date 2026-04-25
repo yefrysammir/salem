@@ -93,6 +93,7 @@ body {
   border-radius: var(--radius-full);
   cursor: pointer;
   margin: var(--space-md);
+  margin-top: calc(env(safe-area-inset-bottom, 6px) + 16px);
   box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.4);
 }
 
@@ -194,7 +195,7 @@ body {
    ═══════════════════════════════════════════════════════════════ */
 
 main {
-  padding-top: calc(env(safe-area-inset-top, var(--space-md)) + var(--space-md));
+  padding-top: calc(env(safe-area-inset-top, 16px) + 16px);
   padding: var(--space-md);
   width: 100%;
   height: 100%;
