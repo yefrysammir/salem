@@ -205,6 +205,8 @@ main {
 #main > div {
   padding: 15px;
   width: 800px;
+  height: 100dvh;
+  margin: 0!important;
 }
 
 main::-webkit-scrollbar {
@@ -1287,6 +1289,9 @@ text-align: center;
   }
   #main > div {
     width: 100%;
+  }
+  main {
+    padding: var(--space-md);
   }
 }
 
