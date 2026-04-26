@@ -61,7 +61,7 @@
 }
 
 body {
-  height: 100dvh;
+  height: 100vh;
   width: 100%;
   padding: var(--space-md);
   /*overflow: hidden;*/
@@ -195,8 +195,10 @@ body {
    ═══════════════════════════════════════════════════════════════ */
 
 main {
-  padding-top: calc(env(safe-area-inset-top, 0px) + 0px);
+  padding-top: calc(env(safe-area-inset-top, 0px) + 16px);
   padding: 0px;
+  min-height: 100%;
+  margin: 0!important;
   overflow-y: scroll;
   overflow-x: hidden;
   background: green;
