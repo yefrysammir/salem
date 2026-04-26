@@ -866,7 +866,8 @@ text-align: center;
 
 #imgSearch {
   width: 100%;
-  padding: 18px 24px;
+  height: 60px;
+  padding: 0px 24px;
   background: var(--glass);
   backdrop-filter: blur(20px);
   border: 1px solid var(--glass-border);
