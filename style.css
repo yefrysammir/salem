@@ -59,44 +59,22 @@
   font-optical-sizing: auto;
   -webkit-font-smoothing: antialiased;
 }
+
 body {
-  height: 100%;          /* dvh en vez de vh */
-  width: 100%;
-  padding: 0;              /* quita el padding general del body */
-  font-family: var(--font);
-  color: #fff;
-  background: yellow; /* vuelve a tu color, quita el yellow/green de debug */
-  user-select: none;
-  scroll-behavior: smooth;
-}
-main {
-  padding-top: calc(env(safe-area-inset-top, 24px) + 16px);
-  padding-bottom: 16px;
-  padding-right: 16px;
-  padding-left: 16px;
-  min-height: 100%;
-  width: 100%;
-  margin: 0 !important;
-  background: green;
-  overflow-y: auto;
-  overflow-x: hidden;
-  -webkit-overflow-scrolling: touch; /* scroll suave en iOS */
-}
-/*body {
-  height: 100vh;
+  height: 100%;
   width: 100%;
   padding: var(--space-md);
-  /*overflow: hidden;
+  /*overflow: hidden;*/
   font-family: var(--font);
   color: #fff;
-  background: yellow;/*var(--void);
+  background: yellow;/*var(--void);*/
   user-select: none;
   scroll-behavior: smooth;
-  /*-webkit-user-select: none;
+  -webkit-user-select: none;
   -moz-osx-font-smoothing: grayscale;
   overscroll-behavior-x: none;
   touch-action: pan-y;
-}*/
+}
 
 /* ═══════════════════════════════════════════════════════════════
    BOTTOM NAVIGATION - 4 TABS FULL WIDTH
@@ -215,16 +193,17 @@ main {
 /* ═══════════════════════════════════════════════════════════════
    MAIN CONTENT
    ═══════════════════════════════════════════════════════════════ */
-/*main {
-  padding-top: calc(env(safe-area-inset-top, 16px) + 16px);
+
+main {
+  padding-top: calc(env(safe-area-inset-top, 24px) + 16px);
   padding: 0;
   min-height: 95%;
   margin: 0!important;
   overflow-y: scroll;
   overflow-x: hidden;
   background: green;
-  /*-webkit-overflow-scrolling: touch;
-}*/
+  /*-webkit-overflow-scrolling: touch;*/
+}
 
 main::-webkit-scrollbar {
   width: 4px;
