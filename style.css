@@ -60,7 +60,9 @@
   -webkit-font-smoothing: antialiased;
 }
 body {
-  height: 100dvh;          /* dvh en vez de vh */
+  font-size: 16px;
+  overflow: hidden;
+  height: 100%;          /* dvh en vez de vh */
   width: 100%;
   padding: 0;              /* quita el padding general del body */
   font-family: var(--font);
@@ -70,12 +72,12 @@ body {
   scroll-behavior: smooth;
 }
 main {
+  position: fixed;
+  inset: 0;
   padding-top: calc(env(safe-area-inset-top, 24px) + 16px);
   padding-bottom: 16px;
   padding-right: 16px;
   padding-left: 16px;
-  min-height: 100dvh;
-  width: 100%;
   margin: 0 !important;
   background: green;
   overflow-y: auto;
@@ -114,9 +116,9 @@ main {
   position: fixed;
   min-height: 70px;
   height: auto;
-  bottom: 2px;
-  left: 0;
-  right: 0;
+  bottom: 16px;
+  left: 16px;
+  right: 16px;
   z-index: var(--z-sticky);
   padding: 8px 14px;
   background: var(--glass);
@@ -124,7 +126,7 @@ main {
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-full);
   cursor: pointer;
-  margin: var(--space-md);
+  margin: 0;
   box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.4);
 }
 
