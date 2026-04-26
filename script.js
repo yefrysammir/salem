@@ -83,7 +83,7 @@ function renderImages(){
 
   const searchWrap = document.createElement('div');
   searchWrap.style.marginBottom = '15px';
-  searchWrap.innerHTML = `<input id="imgSearch" placeholder="Search movie..." style="width:100%;padding:10px;border-radius:15px;border:1px solid var(--glass-border);color: rgba(255, 255, 255, 0.5);">`;
+  searchWrap.innerHTML = `<input id="imgSearch" placeholder="Search movie...">`;
   container.appendChild(searchWrap);
 
   const featured = (p.items || []).filter(i => i.featured);
