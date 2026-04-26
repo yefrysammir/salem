@@ -65,7 +65,7 @@ body {
   padding: 0;              /* quita el padding general del body */
   font-family: var(--font);
   color: #fff;
-  background: var(--void); /* vuelve a tu color, quita el yellow/green de debug */
+  background: yellow; /* vuelve a tu color, quita el yellow/green de debug */
   user-select: none;
   scroll-behavior: smooth;
 }
@@ -208,6 +208,7 @@ main {
   padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 90px);
   min-height: 100dvh;
   margin: 0 !important;
+  background: green;
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch; /* scroll suave en iOS */
