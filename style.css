@@ -60,9 +60,8 @@
   -webkit-font-smoothing: antialiased;
 }
 body {
-  height: 100dvh;          /* dvh en vez de vh */
+  height: 100%;          /* dvh en vez de vh */
   width: 100%;
-  position: relative;
   padding: 0;              /* quita el padding general del body */
   font-family: var(--font);
   color: #fff;
@@ -71,16 +70,11 @@ body {
   scroll-behavior: smooth;
 }
 main {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
   padding-top: calc(env(safe-area-inset-top, 24px) + 16px);
   padding-bottom: 16px;
   padding-right: 16px;
   padding-left: 16px;
-  height: 100%;
+  min-height: 100%;
   width: 100%;
   margin: 0 !important;
   background: green;
@@ -111,7 +105,7 @@ main {
   position: fixed;
   min-height: 70px;
   height: auto;
-  bottom: 6px;
+  bottom: 2px;
   left: 0;
   right: 0;
   z-index: var(--z-sticky);
