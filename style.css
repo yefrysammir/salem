@@ -75,7 +75,7 @@ main {
   position: fixed;
   inset: 0;
   padding-top: calc(env(safe-area-inset-top, 24px) + 16px);
-  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 90px);
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 0px);
   padding-right: 16px;
   padding-left: 16px;
   margin: 0 !important;
