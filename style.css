@@ -1,3 +1,17 @@
+body::before {
+  content: "Top: " env(safe-area-inset-top) " / Bottom: " env(safe-area-inset-bottom);
+  position: fixed;
+  top: 4px;
+  left: 4px;
+  background: red;
+  color: white;
+  font-size: 10px;
+  z-index: 9999;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+
 /* ═══════════════════════════════════════════════════════════════
    STV - OPTIMIZED DESIGN
    ═══════════════════════════════════════════════════════════════ */
