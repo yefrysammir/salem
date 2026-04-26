@@ -196,7 +196,6 @@ body {
 
 main {
   padding-top: calc(env(safe-area-inset-top, 0px) + 16px);
-  padding: 0px;
   min-height: 100%;
   margin: 0!important;
   overflow-y: scroll;
