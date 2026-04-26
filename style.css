@@ -93,7 +93,7 @@ body {
   position: fixed;
   min-height: 70px;
   height: auto;
-  bottom: 0;
+  bottom: 6px;
   left: 0;
   right: 0;
   z-index: var(--z-sticky);
@@ -208,7 +208,7 @@ main {
   padding-bottom: 16px;
   padding-right: 16px;
   padding-left: 16px;
-  min-height: 95%;
+  min-height: 100dvh;
   margin: 0 !important;
   background: green;
   overflow-y: auto;
