@@ -62,7 +62,6 @@
 body {
   font-size: 16px;
   overflow: hidden;
-  height: 100%;          /* dvh en vez de vh */
   width: 100%;
   padding: 0;              /* quita el padding general del body */
   font-family: var(--font);
